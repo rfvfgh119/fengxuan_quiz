@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>馮諼客孟嘗君 - 智慧闖關挑戰</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            animation: fadeIn 0.8s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .option-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .option-button.correct {
+            background-color: #4CAF50; /* Green for correct */
+            color: white;
+        }
+        .option-button.incorrect {
+            background-color: #F44336; /* Red for incorrect */
+            color: white;
+        }
+        .button-hover-effect {
+            transition: all 0.2s ease-in-out;
+        }
+        .button-hover-effect:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .button-hover-effect:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        /* Custom scrollbar for content areas if needed, though Tailwind mostly handles responsiveness */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-purple-200 min-h-screen flex items-center justify-center py-10">
+
+    <div class="container relative">
+        <!-- 六號叔叔的問候語 -->
+        <div id="intro-screen" class="text-center p-8">
+            <h1 class="text-4xl font-extrabold text-blue-800 mb-6">《馮諼客孟嘗君》智慧闖關挑戰</h1>
+            <p class="text-xl text-gray-700 mb-8 leading-relaxed">
+                哈囉，小朋友們！我是你們的國語探險隊長——六號叔叔！聽完了《馮諼客孟嘗君》這個精彩的戰國故事，是不是覺得馮諼超聰明、孟嘗君超大方呢？現在，我們要來一場刺激的「智慧闖關挑戰」囉！這個挑戰有三關，每一關有10題，考驗你對故事的理解和智慧！準備好了嗎？讓我們一起來闖關吧！
+            </p>
+            <button id="start-quiz-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 button-hover-effect">
+                開始挑戰！
+            </button>
+        </div>
+
+        <!-- 測驗內容區塊 -->
+        <div id="quiz-container" class="hidden p-8">
+            <h2 id="stage-name" class="text-3xl font-bold text-purple-700 mb-4 text-center"></h2>
+            <p id="question-number" class="text-lg text-gray-500 mb-6 text-center"></p>
+            <div class="bg-blue-50 p-6 rounded-lg mb-6 shadow-inner">
+                <p id="question-text" class="text-2xl font-semibold text-gray-800 text-center leading-relaxed"></p>
+            </div>
+            
+            <div id="options-container" class="space-y-4 mb-6">
+                <!-- 選項按鈕會動態加載到這裡 -->
+            </div>
+            
+            <p id="feedback-message" class="text-center font-bold text-xl mb-4"></p>
+            <p id="hint-text" class="text-center text-gray-600 italic text-base mb-6"></p>
+
+            <div class="flex justify-center">
+                <button id="next-question-button" class="hidden bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 button-hover-effect">
+                    下一題
+                </button>
+            </div>
+        </div>
+
+        <!-- 關卡結束回饋區塊 -->
+        <div id="stage-feedback" class="hidden text-center p-8">
+            <h2 class="text-3xl font-bold text-blue-700 mb-4">本關成績單！</h2>
+            <p id="stage-score-display" class="text-2xl text-purple-600 font-semibold mb-6"></p>
+            <p id="stage-feedback-message" class="text-xl text-gray-800 mb-8 leading-relaxed"></p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button id="retry-stage-button" class="hidden bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 button-hover-effect">
+                    重新挑戰本關錯題
+                </button>
+                <button id="next-stage-button" class="hidden bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 button-hover-effect">
+                    繼續挑戰下一關
+                </button>
+                <button id="final-review-button" class="hidden bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 button-hover-effect">
+                    查看最終總結
+                </button>
+            </div>
+        </div>
+
+        <!-- 最終總結區塊 -->
+        <div id="final-summary" class="hidden text-center p-8">
+            <h2 class="text-4xl font-extrabold text-green-700 mb-6">恭喜完成所有挑戰！</h2>
+            <p class="text-xl text-gray-700 mb-4">小朋友們，你們真是太棒了！</p>
+            <p id="final-score-display" class="text-3xl text-blue-600 font-bold mb-6"></p>
+            <p id="final-feedback-text" class="text-xl text-gray-800 mb-8 leading-relaxed"></p>
+            <div id="final-suggestions" class="text-left bg-gray-50 p-6 rounded-lg shadow-md mb-8">
+                <!-- 學習建議會動態加載到這裡 -->
+            </div>
+            <button id="restart-quiz-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 button-hover-effect">
+                重新開始測驗
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            // Stage 1: 基礎理解
+            {
+                name: "第一關：基礎理解",
+                questions: [
+                    { question: "這個故事主要是在講哪兩位人物的故事呢？", options: ["孟嘗君和齊王", "馮諼和梁王", "馮諼和孟嘗君", "六號叔叔和孟嘗君"], correctAnswerIndex: 2, hint: "故事的標題就告訴了我們兩位主角的名字。" },
+                    { question: "這個故事發生在哪個時期？", options: ["三國時代", "清朝", "戰國時代", "秦朝"], correctAnswerIndex: 2, hint: "故事開頭就點明了時間背景。" },
+                    { question: "孟嘗君是齊國的貴族，家裡養了多少個門客呢？", options: ["一百個", "一千個", "三千個", "一萬個"], correctAnswerIndex: 2, hint: "故事中用了一個數字形容他的門客數量，像個超大宿舍。" },
+                    { question: "馮諼剛到孟嘗君家時，他做了什麼特別的事情來引起孟嘗君的注意？", options: ["寫了一首詩", "敲著長劍唱歌", "幫孟嘗君整理書房", "和其他門客吵架"], correctAnswerIndex: 1, hint: "他用一種樂器和歌聲來表達他的「請求」。" },
+                    { question: "馮諼第一次敲劍唱歌說「長劍啊長劍，快回家吧，這兒飯菜沒魚吃！」孟嘗君聽到後是怎麼做的？", options: ["生氣地罵他", "馬上說：「給他加魚！」", "假裝沒聽到", "叫他立刻離開"], correctAnswerIndex: 1, hint: "孟嘗君對待門客通常很慷慨。" },
+                    { question: "馮諼第二次敲劍唱歌說「長劍啊長劍，快回家吧，出門連車都沒有！」孟嘗君聽了後，為他做了什麼？", options: ["給他一匹馬", "給他配輛車", "給他一個帽子", "給他一些錢讓他自己買車"], correctAnswerIndex: 1, hint: "為了方便他出門，孟嘗君為他準備了什麼交通工具？" },
+                    { question: "馮諼第三次敲劍唱歌說「長劍啊長劍，快回家吧，連家人都養不起！」孟嘗君又是怎麼回應的？", options: ["不理會他", "給他房子和工資", "叫他不要再唱歌了", "告訴他家人不關自己的事"], correctAnswerIndex: 1, hint: "除了個人的食宿行，馮諼還擔心家人的生活，孟嘗君是如何解決的？" },
+                    { question: "有一天，孟嘗君問大家誰能幫他去薛地做什麼事？", options: ["幫他蓋房子", "幫他收債", "幫他找門客", "幫他去旅行"], correctAnswerIndex: 1, hint: "孟嘗君當時經濟上有點困難，需要有人幫他解決什麼問題？" },
+                    { question: "馮諼去薛地收債後，他對當地老百姓做了什麼讓他們很高興的事？", options: ["給老百姓發了很多禮物", "燒掉了所有債單，免除了他們的債務", "幫老百姓解決了水源問題", "邀請老百姓來孟嘗君家做客"], correctAnswerIndex: 1, hint: "他銷毀了重要的文件，讓百姓不再有負擔。" },
+                    { question: "馮諼告訴孟嘗君，他燒掉債單是幫孟嘗君「買」了一個東西，這個東西比錢更值錢，叫做什麼？", options: ["土地", "寶物", "義（民心、聲望）", "武器"], correctAnswerIndex: 2, hint: "這是馮諼智慧的第一招，它贏得了老百姓的什麼？" }
+                ],
+                feedback: {
+                    excellent: "太棒了！你真是故事達人！對《馮諼客孟嘗君》有很好的基礎認識喔！",
+                    good: "很不錯！你已經掌握了故事的大部分內容，再回顧一下細節會更棒！",
+                    needsWork: "沒關係，這只是第一關！可能是有些細節沒有聽清楚。別擔心，你可以回頭再聽一次故事，或者選擇『重新挑戰第一關』喔！"
+                }
+            },
+            // Stage 2: 進階分析與細節
+            {
+                name: "第二關：進階分析與細節",
+                questions: [
+                    { question: "馮諼敲劍唱歌向孟嘗君要求更多待遇時，其他門客是什麼反應？", options: ["都稱讚馮諼很有個性", "覺得馮諼很會「撒嬌」，很挑剔貪心", "替馮諼感到非常驕傲", "都想學馮諼的樣子"], correctAnswerIndex: 1, hint: "故事中提到門客們「翻白眼」或「笑得肚子疼」。" },
+                    { question: "馮諼在薛地燒掉債單時，他假裝是接到誰的命令？", options: ["他自己隨意做的決定", "孟嘗君的命令", "齊王的命令", "梁王的命令"], correctAnswerIndex: 1, hint: "這個行為是為了讓誰得到好名聲？" },
+                    { question: "馮諼為什麼要特地「燒掉」債單，而不是簡單說一句「不用還了」？", options: ["燒掉比較快，節省時間", "讓老百姓親眼看見債務被銷毀，感受孟嘗君的恩惠更深刻", "因為只有燒掉債務才算真的免除", "他不小心弄壞了債單"], correctAnswerIndex: 1, hint: "這個動作創造了一種強烈的「儀式感」。" },
+                    { question: "孟嘗君被齊王辭退後，回到薛地時，薛地的老百姓是如何迎接他的？", options: ["漠不關心，沒有人理會", "感到生氣，覺得孟嘗君讓他們失望", "扶老攜幼，像過年一樣熱鬧地迎接", "準備了很多禮物要送給孟嘗君"], correctAnswerIndex: 2, hint: "這顯示了馮諼「買義」的效果。" },
+                    { question: "孟嘗君看到薛地百姓的熱情歡迎後，對馮諼說：「你真行！」這句話表達了孟嘗君什麼樣的心情？", options: ["他對馮諼的行為感到不解", "他終於明白馮諼之前燒債的用意，感到非常佩服", "他覺得馮諼讓他丟臉了", "他認為馮諼只是運氣好"], correctAnswerIndex: 1, hint: "這是不是孟嘗君第一次真正體會到馮諼的智慧？" },
+                    { question: "馮諼在孟嘗君被辭退後，去了哪個國家說服他們的王來邀請孟嘗君？", options: ["秦國", "楚國", "趙國", "梁國"], correctAnswerIndex: 3, hint: "這個國家在故事中被稱為「梁國」。" },
+                    { question: "馮諼對梁王說了什麼話，讓梁王對孟嘗君非常重視，準備了豪車和別墅來迎接？", options: ["他威脅梁王如果不請孟嘗君就會很慘", "他告訴梁王孟嘗君是個「大咖」，而且現在沒有官職，正是延攬人才的好機會", "他說孟嘗君很有錢，可以幫助梁國發展", "他說孟嘗君是個好朋友，希望梁王能幫忙"], correctAnswerIndex: 1, hint: "馮諼是如何「抬高」孟嘗君的身價，讓梁王感到機會難得？" },
+                    { question: "齊王聽到梁國高規格邀請孟嘗君的消息後，為什麼會感到「慌了」，並趕緊請孟嘗君回去當丞相？", options: ["他害怕孟嘗君會去梁國偷齊國的秘密", "他擔心孟嘗君的能力被其他國家利用，會威脅到齊國的利益", "他發現自己其實很想念孟嘗君", "他想邀請梁王來齊國玩"], correctAnswerIndex: 1, hint: "這是一種「借力使力」的策略，讓齊王感受到壓力。" },
+                    { question: "齊王請孟嘗君回去當丞相時，說了一句特別的話：「請你回來保護祖先的宗廟吧！」這句話的言下之意是什麼？", options: ["宗廟沒有人看管，很危險", "孟嘗君是個能人，希望他能回來輔佐國家，穩定社稷", "齊王想讓孟嘗君去打掃宗廟", "齊王希望孟嘗君只管宗廟的事情"], correctAnswerIndex: 1, hint: "保護宗廟代表著什麼樣的國家大事？" },
+                    { question: "馮諼在孟嘗君復職後，建議他在薛地建一個宗廟，這樣做的目的是什麼？", options: ["讓孟嘗君有一個固定的祭祀場所", "讓孟嘗君可以收更多的門客", "讓孟嘗君的地位更穩固，齊王不敢輕易廢他或動薛地，就像「狡兔三窟」一樣有保障", "讓薛地成為一個宗教中心"], correctAnswerIndex: 2, hint: "這項計策為孟嘗君帶來了「永久性」的保護。" }
+                ],
+                feedback: {
+                    excellent: "哇！你真是慧眼識英雄，對馮諼的計策和故事細節都掌握得很好！",
+                    good: "很棒喔！你已經抓住了故事的核心，再稍微回顧一下馮諼的每一個巧妙安排，會讓你的理解更透徹！",
+                    needsWork: "沒關係，這些題目比較考驗細節思考！你可以再回頭看一次影片，特別是馮諼執行計策的部分，然後再試試看『重新挑戰第二關』喔！"
+                }
+            },
+            // Stage 3: 主題歸納與應用
+            {
+                name: "第三關：主題歸納與應用",
+                questions: [
+                    { question: "故事一開始，孟嘗君為什麼願意接納像馮諼這樣「窮得叮噹響，連鞋子都破了」的人做門客？", options: ["孟嘗君天生就很喜歡收留窮人", "孟嘗君對門客超好，不管有沒有本事都歡迎", "孟嘗君認識馮諼的家人", "孟嘗君被馮諼的歌聲感動了"], correctAnswerIndex: 1, hint: "孟嘗君對待所有門客的態度是什麼？" },
+                    { question: "馮諼在故事中展現了多項才能，其中最主要和最關鍵的是哪一種？", options: ["武功高強", "唱歌好聽", "智慧和策略", "很有錢"], correctAnswerIndex: 2, hint: "故事多次提到馮諼如何「幫孟嘗君打怪升級」。" },
+                    { question: "「燒債買人心」是馮諼的第一招，你覺得這招的「聰明」之處在哪裡？", options: ["讓孟嘗君省了很多收債的麻煩", "用小小的經濟損失，換來了巨大的民心支持和好名聲", "讓老百姓知道孟嘗君很笨，把錢都燒光了", "這其實是馮諼自己的主意，孟嘗君並不知情"], correctAnswerIndex: 1, hint: "這招帶來的是眼前利益還是長遠利益？" },
+                    { question: "馮諼「借梁國抬身價」這第二招，是利用了齊王什麼樣的心態，才讓孟嘗君得以復職？", options: ["齊王對孟嘗君的思念之情", "齊王害怕人才流失，擔心競爭對手（梁國）變強", "齊王想和梁國結交朋友", "齊王覺得孟嘗君去梁國玩一趟會很高興"], correctAnswerIndex: 1, hint: "在諸侯國互相競爭的戰國時期，國王最看重什麼？" },
+                    { question: "馮諼為孟嘗君設計的第三招「狡兔三窟」，這個策略主要強調了什麼重要性？", options: ["狡猾的兔子會挖三個洞", "凡事要未雨綢繆，多準備幾個退路或保障", "有錢就可以蓋很多房子", "只有一個計畫比較簡單有效率"], correctAnswerIndex: 1, hint: "就像兔子會為自己準備多個藏身之處一樣。" },
+                    { question: "故事中，孟嘗君對馮諼的信任是逐步建立的。你覺得這個過程給我們什麼啟示？", options: ["只要一個人會唱歌，就值得信任", "不要輕易相信別人，特別是那些看起來不起眼的人", "有時候一個人的價值和能力，需要時間和機會才能被看見和證明", "朋友就是要不斷地要求幫助"], correctAnswerIndex: 2, hint: "孟嘗君是看到了馮諼做了什麼事情之後，才對他越來越信任？" },
+                    { question: "「市義」就是「買義」，現在我們說「仗義」，是做好事不求回報的意思。請問，「市義」和「仗義」有什麼共同的地方？", options: ["都和花錢有關係", "都是為了幫助別人，為自己積累好名聲或善意", "都是為了讓自己變得很富有", "都是一種交易行為"], correctAnswerIndex: 1, hint: "兩者是不是都強調了「幫助他人」和「獲得好感」。" },
+                    { question: "如果你是孟嘗君，一開始會怎麼看待馮諼這樣「只會要東西」的門客？這個故事如何改變你對「看起來沒用的人」的看法？", options: ["孟嘗君會覺得很煩，想趕走他", "孟嘗君會覺得他很搞笑，是個開心果", "孟嘗君會覺得他可能深藏不露，因為他表現得很特別", "孟嘗君會覺得他沒用，但還是會養他，因為他很大方"], correctAnswerIndex: 2, hint: "孟嘗君雖然給了他想要的東西，但一開始是不是有點疑惑？故事後來如何證明馮諼的價值？" },
+                    { question: "這個故事的核心主題之一是「智慧」的重要性。你覺得在日常生活中，有什麼地方是「動腦筋比亂按鍵有用」的？請舉一個例子。", options: ["玩遊戲時，只靠運氣亂按按鈕", "寫作業時，先思考怎麼做，再動手寫", "遇到問題時，直接放棄", "學習時，只讀書不思考"], correctAnswerIndex: 1, hint: "想想看，哪些事情是需要策略和計畫的？" },
+                    { question: "學習《馮諼客孟嘗君》的故事，你覺得對自己最大的收穫是什麼？（這是一個開放性問題，請用自己的話說說看）", options: ["知道了戰國時代有人叫馮諼和孟嘗君", "學會了要向別人多要東西", "明白了有時候看起來不重要的人，其實可能很有大智慧；以及遇到困難要多思考，為自己準備多條路。", "了解到古代的人都很聰明"], correctAnswerIndex: 2, hint: "故事的核心人物馮諼做了哪些事情讓你印象深刻？這些事情告訴你什麼道理？" }
+                ],
+                feedback: {
+                    excellent: "太厲害了！你真是『文言文智慧大師』！你不僅理解了故事，還能從中學習到解決問題的智慧，並應用到生活中！",
+                    good: "非常棒！你已經掌握了故事的深層寓意，再多思考一下生活中的應用，你會更上一層樓！",
+                    needsWork: "沒關係，這關本來就比較難！多思考故事帶給我們的啟示，你也可以成為生活中的智慧小超人！"
+                }
+            }
+        ];
+
+        let currentStageIndex = 0;
+        let currentQuestionIndex = 0;
+        let score = 0; // Score for the current stage
+        let totalScore = 0; // Total score across all stages
+        let incorrectQuestionsInStage = []; // To store questions answered incorrectly in the current stage
+        let isRetryingIncorrect = false; // Flag to indicate if currently retrying incorrect questions
+
+        // DOM elements
+        const introScreen = document.getElementById('intro-screen');
+        const quizContainer = document.getElementById('quiz-container');
+        const stageFeedback = document.getElementById('stage-feedback');
+        const finalSummary = document.getElementById('final-summary');
+
+        const startQuizButton = document.getElementById('start-quiz-button');
+        const nextQuestionButton = document.getElementById('next-question-button');
+        const retryStageButton = document.getElementById('retry-stage-button');
+        const nextStageButton = document.getElementById('next-stage-button');
+        const finalReviewButton = document.getElementById('final-review-button');
+        const restartQuizButton = document.getElementById('restart-quiz-button');
+
+        const stageNameElem = document.getElementById('stage-name');
+        const questionNumberElem = document.getElementById('question-number');
+        const questionTextElem = document.getElementById('question-text');
+        const optionsContainerElem = document.getElementById('options-container');
+        const feedbackMessageElem = document.getElementById('feedback-message');
+        const hintTextElem = document.getElementById('hint-text');
+        const stageScoreDisplayElem = document.getElementById('stage-score-display');
+        const stageFeedbackMessageElem = document.getElementById('stage-feedback-message');
+        const finalScoreDisplayElem = document.getElementById('final-score-display');
+        const finalFeedbackTextElem = document.getElementById('final-feedback-text');
+        const finalSuggestionsElem = document.getElementById('final-suggestions');
+
+
+        // Function to initialize or reset the quiz
+        function initializeQuiz() {
+            currentStageIndex = 0;
+            currentQuestionIndex = 0;
+            score = 0;
+            totalScore = 0;
+            incorrectQuestionsInStage = [];
+            isRetryingIncorrect = false;
+
+            // Show intro screen, hide others
+            introScreen.classList.remove('hidden');
+            quizContainer.classList.add('hidden');
+            stageFeedback.classList.add('hidden');
+            finalSummary.classList.add('hidden');
+
+            // Set up event listeners for main buttons
+            startQuizButton.onclick = startQuiz;
+            nextQuestionButton.onclick = handleNextQuestion;
+            retryStageButton.onclick = retryCurrentStageIncorrect;
+            nextStageButton.onclick = nextStage;
+            finalReviewButton.onclick = showFinalSummary;
+            restartQuizButton.onclick = initializeQuiz;
+        }
+
+        // Function to start the quiz from the intro screen
+        function startQuiz() {
+            introScreen.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            loadStage();
+        }
+
+        // Function to load a new quiz stage
+        function loadStage() {
+            score = 0; // Reset score for the new stage
+            currentQuestionIndex = 0; // Start from the first question of the stage
+            incorrectQuestionsInStage = []; // Clear incorrect questions for new stage
+            isRetryingIncorrect = false; // Exit retry mode
+
+            stageFeedback.classList.add('hidden'); // Hide stage feedback
+            quizContainer.classList.remove('hidden'); // Show quiz container
+
+            stageNameElem.textContent = quizData[currentStageIndex].name;
+            loadQuestion();
+        }
+
+        // Function to load the current question
+        function loadQuestion() {
+            let questionsSource = isRetryingIncorrect ? incorrectQuestionsInStage : quizData[currentStageIndex].questions;
+            let currentQuestion = questionsSource[currentQuestionIndex];
+
+            // If no more questions in the current source (e.g., all incorrect questions retried)
+            if (!currentQuestion) {
+                showStageFeedback(); // Go to stage feedback
+                return;
+            }
+
+            // Clear previous state
+            feedbackMessageElem.textContent = '';
+            hintTextElem.textContent = '';
+            nextQuestionButton.classList.add('hidden'); // Hide next button until answer
+
+            // Update question number display
+            const displayedQuestionNumber = (isRetryingIncorrect ? currentQuestionIndex : currentQuestionIndex) + 1;
+            questionNumberElem.textContent = `第 ${displayedQuestionNumber} 題 / ${questionsSource.length} 題`;
+
+            questionTextElem.textContent = currentQuestion.question;
+
+            optionsContainerElem.innerHTML = ''; // Clear previous options
+
+            currentQuestion.options.forEach((optionText, index) => {
+                const button = document.createElement('button');
+                button.textContent = optionText;
+                button.className = 'option-button bg-purple-200 hover:bg-purple-300 text-purple-800 font-bold py-3 px-6 rounded-xl shadow-md transform transition-transform hover:scale-105 active:scale-95 text-lg w-full text-left button-hover-effect';
+                button.onclick = () => selectOption(index, currentQuestion);
+                optionsContainerElem.appendChild(button);
+            });
+        }
+
+        // Function to handle option selection
+        function selectOption(selectedIndex, currentQuestion) {
+            const options = document.querySelectorAll('#options-container .option-button');
+            options.forEach((button, index) => {
+                button.disabled = true; // Disable all options after selection
+                if (index === currentQuestion.correctAnswerIndex) {
+                    button.classList.add('bg-green-400', 'text-white', 'correct'); // Correct answer style
+                } else if (index === selectedIndex) {
+                    button.classList.add('bg-red-400', 'text-white', 'incorrect'); // Incorrectly selected style
+                }
+            });
+
+            if (selectedIndex === currentQuestion.correctAnswerIndex) {
+                feedbackMessageElem.textContent = '答對了！太棒了！';
+                feedbackMessageElem.className = 'text-green-600 font-bold text-xl mt-4 text-center';
+                // Only increment score if not retrying this specific question (to avoid double counting)
+                if (!isRetryingIncorrect) {
+                    score++;
+                } else {
+                    // If retrying and correct, remove from incorrect list
+                    incorrectQuestionsInStage = incorrectQuestionsInStage.filter(q => q !== currentQuestion);
+                }
+            } else {
+                feedbackMessageElem.textContent = '答錯了！別灰心，再努力！';
+                feedbackMessageElem.className = 'text-red-600 font-bold text-xl mt-4 text-center';
+                // Only add to incorrect questions if not already retrying this specific question and it's the initial attempt
+                if (!isRetryingIncorrect && !incorrectQuestionsInStage.includes(currentQuestion)) {
+                    incorrectQuestionsInStage.push(currentQuestion);
+                }
+            }
+
+            if (currentQuestion.hint) {
+                hintTextElem.textContent = `提示：${currentQuestion.hint}`;
+                hintTextElem.className = 'text-gray-600 italic text-base mt-2 text-center';
+            }
+            nextQuestionButton.classList.remove('hidden'); // Show next button
+        }
+
+        // Function to handle progression to the next question
+        function handleNextQuestion() {
+            currentQuestionIndex++;
+            let questionsSource = isRetryingIncorrect ? incorrectQuestionsInStage : quizData[currentStageIndex].questions;
+
+            if (currentQuestionIndex < questionsSource.length) {
+                loadQuestion();
+            } else {
+                showStageFeedback();
+            }
+        }
+
+        // Function to display stage feedback and navigation
+        function showStageFeedback() {
+            quizContainer.classList.add('hidden');
+            stageFeedback.classList.remove('hidden');
+
+            const stageConfig = quizData[currentStageIndex];
+            const feedback = stageConfig.feedback;
+            const stageScore = score; // This 'score' already holds correct answers for initial attempt
+
+            let feedbackText = '';
+
+            // Determine feedback message based on score
+            if (stageScore >= 8) { // Excellent
+                feedbackText = feedback.excellent;
+            } else if (stageScore >= 5) { // Good
+                feedbackText = feedback.good;
+            } else { // Needs work
+                feedbackText = feedback.needsWork;
+            }
+
+            stageFeedbackMessageElem.textContent = feedbackText;
+            stageScoreDisplayElem.textContent = `你答對了 ${stageScore} 題 / ${stageConfig.questions.length} 題`;
+
+            // Adjust totalScore only after the initial attempt of a stage
+            if (!isRetryingIncorrect) { // Only add score if not in a retry session
+                totalScore += score;
+            }
+
+
+            // Button visibility logic
+            retryStageButton.classList.add('hidden');
+            nextStageButton.classList.add('hidden');
+            finalReviewButton.classList.add('hidden');
+
+            if (currentStageIndex < quizData.length - 1) { // Not the last stage
+                if (stageScore >= 5) { // Passing score
+                    nextStageButton.classList.remove('hidden');
+                } else { // Not passing score
+                    if (incorrectQuestionsInStage.length > 0) { // If there are incorrect questions to retry
+                        retryStageButton.classList.remove('hidden');
+                    } else { // All questions were answered correctly (e.g. during a retry session that ended perfectly)
+                        nextStageButton.classList.remove('hidden'); // Move to next stage
+                    }
+                }
+            } else { // Last stage
+                finalReviewButton.classList.remove('hidden'); // Only show final review
+            }
+        }
+
+        // Function to retry incorrect questions for the current stage
+        function retryCurrentStageIncorrect() {
+            if (incorrectQuestionsInStage.length > 0) {
+                isRetryingIncorrect = true;
+                currentQuestionIndex = 0; // Reset index for incorrect questions
+                stageFeedback.classList.add('hidden');
+                quizContainer.classList.remove('hidden');
+                stageNameElem.textContent = `${quizData[currentStageIndex].name} (錯題重練)`;
+                loadQuestion(); // Load the first incorrect question
+            } else {
+                // If somehow no incorrect questions left, proceed
+                nextStage();
+            }
+        }
+
+
+        // Function to proceed to the next stage
+        function nextStage() {
+            currentStageIndex++;
+            if (currentStageIndex < quizData.length) {
+                loadStage();
+            } else {
+                showFinalSummary();
+            }
+        }
+
+        // Function to display the final summary
+        function showFinalSummary() {
+            quizContainer.classList.add('hidden');
+            stageFeedback.classList.add('hidden');
+            finalSummary.classList.remove('hidden');
+
+            finalScoreDisplayElem.textContent = `你總共答對了 ${totalScore} 題 / 30 題`;
+
+            let finalFeedbackText = '';
+            let finalSuggestionsHtml = '';
+
+            if (totalScore >= 25) {
+                finalFeedbackText = "你真是『文言文超級智慧王』！你對這個故事的理解非常全面和深入，無論是基礎知識、細節分析還是智慧應用，都掌握得爐火純青！你已經從馮諼身上學到了很多解決問題的巧妙方法，未來遇到困難時，一定能運用你的智慧找到最好的辦法！";
+                finalSuggestionsHtml = `
+                    <h4 class="text-xl font-semibold text-gray-800 mb-2">六號叔叔的學習建議：</h4>
+                    <ul class="list-disc list-inside text-gray-700 space-y-1">
+                        <li>**繼續探索更多古人智慧**：你可以挑戰其他《戰國策》或《史記》中的故事，發掘更多古人的智慧！</li>
+                        <li>**將智慧應用到生活**：思考在你的日常生活中，如何像馮諼一樣運用智慧來解決問題，幫助自己和身邊的人。</li>
+                    </ul>
+                `;
+            } else if (totalScore >= 18) {
+                finalFeedbackText = "你已經是『文言文智慧探險家』了！你對故事的理解很不錯，特別是在情節和細節方面掌握得很好。可能在某些深層寓意或古今應用上還能再多思考一點，只要再多花點時間回顧影片和思考，你一定會更棒！";
+                finalSuggestionsHtml = `
+                    <h4 class="text-xl font-semibold text-gray-800 mb-2">六號叔叔的學習建議：</h4>
+                    <ul class="list-disc list-inside text-gray-700 space-y-1">
+                        <li>**多聽故事多思考**：文言文故事的魅力就在於其中蘊含的智慧。多聽幾遍故事，並在聽的時候，像小偵探一樣思考：「為什麼這個角色這麼做？」、「如果我是他，我會怎麼辦？」</li>
+                        <li>**善用「狡兔三窟」**：在生活中遇到困難時，學學馮諼的智慧，不要只想到一個辦法，多想幾個備用方案，這樣會讓你更有信心面對挑戰！</li>
+                    </ul>
+                `;
+            } else if (totalScore >= 10) {
+                finalFeedbackText = "你正在往『文言文智慧學徒』的方向前進！你已經掌握了故事的基礎，並且對馮諼的某些計策有了初步認識。建議你可以把整個故事影片再多看幾遍，特別是馮諼和孟嘗君互動的部分，多想想他們為什麼這麼做、這麼說，你會有更大的收穫喔！";
+                finalSuggestionsHtml = `
+                    <h4 class="text-xl font-semibold text-gray-800 mb-2">六號叔叔的學習建議：</h4>
+                    <ul class="list-disc list-inside text-gray-700 space-y-1">
+                        <li>**回顧故事細節**：重新觀看《馮諼客孟嘗君》的影片，特別注意人物的對話和事件的發展順序。</li>
+                        <li>**理解主要概念**：試著理解故事中「買義」、「狡兔三窟」等核心概念的意義。</li>
+                    </ul>
+                `;
+            } else {
+                finalFeedbackText = "沒關係，學習是一個循序漸進的過程！這個故事的確有些地方需要仔細思考。你可以從第一關開始，一題一題地再練習，遇到不懂的就暫停影片思考，然後再繼續。只要堅持下去，你一定會越來越棒，成為文言文小高手的！";
+                finalSuggestionsHtml = `
+                    <h4 class="text-xl font-semibold text-gray-800 mb-2">六號叔叔的學習建議：</h4>
+                    <ul class="list-disc list-inside text-gray-700 space-y-1">
+                        <li>**完整觀看故事影片**：確保完整聽完《馮諼客孟嘗君》的故事講解。</li>
+                        <li>**從簡單開始**：可以先從第一關的題目開始，慢慢來，不要急。</li>
+                        <li>**多與家人朋友討論**：和爸爸媽媽或好朋友一起討論故事內容，會幫助你更好地理解喔！</li>
+                    </ul>
+                `;
+            }
+            finalFeedbackTextElem.textContent = finalFeedbackText;
+            finalSuggestionsElem.innerHTML = finalSuggestionsHtml;
+        }
+
+        // Initialize the quiz when the page loads
+        window.onload = initializeQuiz;
+    </script>
+</body>
+</html>
